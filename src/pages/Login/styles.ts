@@ -1,5 +1,9 @@
 import styled from 'styled-components/native';
 
+export const BackgroundImage = styled.ImageBackground`
+  position: absolute;
+`;
+
 export const Container = styled.View`
   flex: 1;
   align-items: center;
@@ -7,12 +11,17 @@ export const Container = styled.View`
   padding: 0 30px;
 `;
 
+export const LogoContainer = styled.View`
+  align-items: center;
+  align-self: center;
+`;
+
 export const Title = styled.Text`
   font-family: 'RobotoSlab-Medium';
   font-size: 20px;
   color: #ffffff;
   align-self: center;
-  margin: 64px 0 30px;
+  margin: 30px 0 30px;
 `;
 
 export const ForgotPassword = styled.TouchableOpacity`
