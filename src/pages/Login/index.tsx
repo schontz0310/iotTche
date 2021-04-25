@@ -1,20 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  TextInput,
   View,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
+
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
+import * as Yup from 'yup';
 
 import { ScrollView } from 'react-native-gesture-handler';
 import logoImg from '../../assets/logo.png';
 import logoImgMini from '../../assets/logoMini.png';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
+
+import { useAuth } from '../../hook/auth';
+import getValidationErrors from '../../utils/getvalidationErros';
 
 import backgroundImage from '../../assets/backgroundImage.png';
 
@@ -28,9 +37,19 @@ import {
   BackgroundImage,
   LogoContainer,
 } from './styles';
+import api from '../../services/api';
+
+interface SignUpForData {
+  email: string;
+  password: string;
+}
 
 const Login = () => {
+  const passwordInputRef = useRef<TextInput>(null);
+  const formRef = useRef<FormHandles>(null);
   const navigate = useNavigation();
+
+  const { signIn } = useAuth();
   const [showSignInButton, setShowSignInButton] = useState(true);
 
   useEffect(() => {
@@ -52,6 +71,42 @@ const Login = () => {
       keyboardDidShowListener.remove();
     };
   }, []);
+
+  const handleSignIn = useCallback(
+    async (data: SignUpForData) => {
+      try {
+        formRef.current?.setErrors({});
+
+        const schemaValidation = Yup.object().shape({
+          email: Yup.string().required('E-mail obrigatório'),
+          // .email('Digite um e-mail válido'),
+          password: Yup.string().min(6, 'minimo de 6 dígitos'),
+        });
+        await schemaValidation.validate(data, {
+          abortEarly: false,
+        });
+
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+          console.log(errors);
+          formRef.current?.setErrors(errors);
+          return;
+        }
+        // disparar um toast
+        console.log(err);
+        Alert.alert(
+          'Erro no Cadastro',
+          'Ocorreu um erro ao logar na aplicação, cheque os campos',
+        );
+      }
+    },
+    [signIn],
+  );
 
   return (
     <KeyboardAvoidingView
@@ -75,38 +130,48 @@ const Login = () => {
         keyboardShouldPersistTaps="handled"
       >
         <Container>
-          {showSignInButton ? (
-            <>
-              <LogoContainer>
-                <Image
-                  source={logoImg}
-                  resizeMode="contain"
-                  style={{ maxWidth: '70%' }}
-                />
-              </LogoContainer>
-              <Title>Faça seu login</Title>
-            </>
-          ) : (
-            <Image
-              resizeMode="contain"
-              source={logoImgMini}
-              style={{
-                marginBottom: 36,
+          <Image source={logoImg} />
+          <Title>Faça seu login</Title>
+          <Form ref={formRef} onSubmit={handleSignIn}>
+            <Input
+              name="email"
+              icon="mail"
+              placeholder="E-mail"
+              autoCorrect={false}
+              autoCapitalize="none"
+              autoCompleteType="off"
+              keyboardType="email-address"
+              returnKeyType="next"
+              onSubmitEditing={() => {
+                passwordInputRef.current?.focus();
               }}
             />
-          )}
+            <Input
+              ref={passwordInputRef}
+              name="password"
+              icon="lock"
+              placeholder="Senha"
+              secureTextEntry
+              returnKeyType="send"
+              onSubmitEditing={() => {
+                formRef.current?.submitForm();
+              }}
+            />
 
-          <Input name="email" icon="mail" placeholder="Email" />
-          <Input name="password" icon="lock" placeholder="senha" />
-          <Button
-            onPress={() => {
-              console.log('click');
-            }}
-          >
-            Entrar
-          </Button>
+            <Button
+              onPress={() => {
+                formRef.current?.submitForm();
+              }}
+            >
+              Entrar
+            </Button>
+          </Form>
           {showSignInButton && (
-            <ForgotPassword>
+            <ForgotPassword
+              onPress={() => {
+                console.log('es queci a senha');
+              }}
+            >
               <ForgotPasswordText>Esqueci minha senha</ForgotPasswordText>
             </ForgotPassword>
           )}

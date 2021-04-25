@@ -1,17 +1,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { RectButtonProperties } from 'react-native-gesture-handler';
-
+import { TouchableOpacityProps } from 'react-native';
 import { Container, ButtomText } from './styles';
 
-interface ButtonProps extends RectButtonProperties {
+interface ButtonProps extends TouchableOpacityProps {
   children: string;
   color?: string;
   textColor?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button: React.ElementType<ButtonProps> = ({
   children,
   color = '#39b100',
   textColor = '#fff',

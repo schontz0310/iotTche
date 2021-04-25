@@ -5,6 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import Routes from './routes';
 
+import AppProvider from './hook';
+
 const App = () => {
   return (
     <NavigationContainer>
@@ -13,9 +15,11 @@ const App = () => {
         translucent
         backgroundColor="#312e38"
       />
-      <View style={{ flex: 1, backgroundColor: '#312e38' }}>
-        <Routes />
-      </View>
+      <AppProvider>
+        <View style={{ flex: 1, backgroundColor: '#312e38' }}>
+          <Routes />
+        </View>
+      </AppProvider>
     </NavigationContainer>
   );
 };

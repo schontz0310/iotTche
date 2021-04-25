@@ -1,24 +1,14 @@
 import React from 'react';
 
-import { createStackNavigator } from '@react-navigation/stack';
+import AuthRoutes from './auth.routes';
+import AppRoutes from './app.routes';
 
-import Login from '../pages/Login';
-import Register from '../pages/Register';
+import { useAuth } from '../hook/auth';
 
-const Auth = createStackNavigator();
+const Routes: React.FC = () => {
+  const { user } = useAuth();
 
-const AuthRoutes = () => {
-  return (
-    <Auth.Navigator
-      screenOptions={{
-        headerShown: false,
-        cardStyle: { backgroundColor: '#312e38' },
-      }}
-    >
-      <Auth.Screen name="Login" component={Login} />
-      <Auth.Screen name="Register" component={Register} />
-    </Auth.Navigator>
-  );
+  return user ? <AppRoutes /> : <AuthRoutes />;
 };
 
-export default AuthRoutes;
+export default Routes;
